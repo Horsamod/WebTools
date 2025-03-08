@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            background-color: #2d8c51;
+            color: white;
+            padding: 15px 0;
+            width: 100%;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo img {
+            height: 50px;
+            margin-right: 10px;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .tagline {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .nav {
+            background-color: #2d8c51;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav ul {
+            display: flex;
+            list-style: none;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .nav ul li {
+            margin-right: 15px;
+        }
+        
+        .nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            text-transform: uppercase;
+            padding: 5px 0;
+        }
+        
+        .nav ul li a.active {
+            border-bottom: 2px solid white;
+        }
+        
+        .main {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            gap: 20px;
+        }
+        
+        .left-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .right-panel {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-header-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #2d8c51;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        
+        .color-picker-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .color-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+        
+        .color-input {
+            width: 80px;
+        }
+        
+        .color-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .logo-upload-area {
+            border: 2px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        
+        .logo-upload-icon {
+            font-size: 30px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        
+        .logo-upload-text {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .design-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .design-option {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .design-option.active {
+            border-color: #2d8c51;
+            background-color: rgba(45, 140, 81, 0.1);
+        }
+        
+        .design-option-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .design-option-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .card-header h3 {
+            flex: 1;
+            font-size: 16px;
+            color: #555;
+        }
+        
+        .card-header-collapse {
+            color: #888;
+            cursor: pointer;
+        }
+        
+        .card-body {
+            padding: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .switch {
+            display: flex;
+            align-items: center;
+        }
+        
+        .switch-label {
+            margin-left: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .switch-toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 34px;
+            transition: .4s;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+        }
+        
+        input:checked + .slider {
+            background-color: #2d8c51;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .qr-container {
+            width: 300px;
+            height: 300px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quality-slider {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .quality-slider input {
+            flex: 1;
+            margin: 0 10px;
+        }
+        
+        .quality-label {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .dimensions {
+            font-size: 14px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #8bc34a;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #79d4f9;
+            color: white;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: #888;
+        }
+        
+        .footer-note {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .footer {
+            background-color: #2d8c51;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 30px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main {
+                flex-direction: column;
+            }
+            
+            .qr-container {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="logo">
+                <svg width="50" height="50" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="#2d8c51" />
+                    <circle cx="50" cy="50" r="30" fill="white" />
+                    <circle cx="70" cy="30" r="8" fill="white" />
+                    <circle cx="70" cy="30" r="3" fill="#2d8c51" />
+                    <path d="M 30 40 Q 45 20 65 50 Q 75 70 40 75 Q 20 70 30 40" fill="#2d8c51" />
+                </svg>
+                <div>
+                    <h1>QRcode Monkey</h1>
+                    <div class="tagline">THE 100% FREE QR CODE GENERATOR</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="nav">
+        <div class="container">
+            <ul>
+                <li><a href="#" class="active">URL</a></li>
+                <li><a href="#">TEXT</a></li>
+                <li><a href="#">EMAIL</a></li>
+                <li><a href="#">PHONE</a></li>
+                <li><a href="#">SMS</a></li>
+                <li><a href="#">VCARD</a></li>
+                <li><a href="#">MECARD</a></li>
+                <li><a href="#">LOCATION</a></li>
+                <li><a href="#">FACEBOOK</a></li>
+                <li><a href="#">TWITTER</a></li>
+                <li><a href="#">YOUTUBE</a></li>
+                <li><a href="#">WIFI</a></li>
+                <li><a href="#">EVENT</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="main">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-icon">
+                            <i>⚡</i>
+                        </div>
+                        <h3>ENTER CONTENT</h3>
+                        <div class="card-header-collapse">−</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="url-input">Your URL</label>
+                            <input type="text" id="url-input" class="form-control" value="https://www.qrcode-monkey.com">
+                        </div>
+                        <div class="switch">
+                            <label class="switch-toggle">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="switch-label">Statistics and Editability</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-icon">
+                            <i>🎨</i>
+                        </div>
+                        <h3>SET COLORS</h3>
+                        <div class="card-header-collapse">+</div>
+                    </div>
+                    <div class="card-body" style="display: none;">
+                        <div class="color-picker-container">
+                            <div class="color-option">
+                                <div class="color-preview" id="foreground-color-preview" style="background-color: #000000;"></div>
+                                <input type="color" id="foreground-color" class="color-input" value="#000000">
+                                <span class="color-label">Foreground</span>
+                            </div>
+                            <div class="color-option">
+                                <div class="color-preview" id="background-color-preview" style="background-color: #ffffff;"></div>
+                                <input type="color" id="background-color" class="color-input" value="#ffffff">
+                                <span class="color-label">Background</span>
+                            </div>
+                            <div class="color-option">
+                                <div class="color-preview" id="corner-color-preview" style="background-color: #000000;"></div>
+                                <input type="color" id="corner-color" class="color-input" value="#000000">
+                                <span class="color-label">Corner Squares</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="gradient-checkbox">
+                                <input type="checkbox" id="gradient-checkbox"> Enable Gradient
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-icon">
+                            <i>🖼️</i>
+                        </div>
+                        <h3>ADD LOGO IMAGE</h3>
+                        <div class="card-header-collapse">+</div>
+                    </div>
+                    <div class="card-body" style="display: none;">
+                        <div class="logo-upload-area" id="logo-upload-area">
+                            <div class="logo-upload-icon">📂</div>
+                            <div class="logo-upload-text">Click to upload your logo (PNG, JPG, SVG)</div>
+                            <input type="file" id="logo-upload" accept=".png,.jpg,.jpeg,.svg" style="display: none;">
+                        </div>
+                        <div id="logo-preview" style="display: none; text-align: center; margin-bottom: 15px;">
+                            <img id="logo-preview-img" src="" alt="Logo Preview" style="max-width: 100px; max-height: 100px;">
+                            <button id="remove-logo" class="btn btn-outline" style="margin-top: 10px;">Remove Logo</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="logo-size">Logo Size:</label>
+                            <input type="range" id="logo-size" min="5" max="30" value="15" class="form-control">
+                            <span id="logo-size-value">15%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-icon">
+                            <i>⚙️</i>
+                        </div>
+                        <h3>CUSTOMIZE DESIGN</h3>
+                        <div class="card-header-collapse">+</div>
+                    </div>
+                    <div class="card-body" style="display: none;">
+                        <label>QR Code Pattern:</label>
+                        <div class="design-options">
+                            <div class="design-option active" data-pattern="square">
+                                <div class="design-option-icon">■</div>
+                                <div class="design-option-label">Square</div>
+                            </div>
+                            <div class="design-option" data-pattern="dot">
+                                <div class="design-option-icon">●</div>
+                                <div class="design-option-label">Dots</div>
+                            </div>
+                            <div class="design-option" data-pattern="rounded">
+                                <div class="design-option-icon">▢</div>
+                                <div class="design-option-label">Rounded</div>
+                            </div>
+                        </div>
+                        
+                        <label>Corner Square Style:</label>
+                        <div class="design-options">
+                            <div class="design-option active" data-corner="square">
+                                <div class="design-option-icon">◼</div>
+                                <div class="design-option-label">Square</div>
+                            </div>
+                            <div class="design-option" data-corner="dot">
+                                <div class="design-option-icon">⬤</div>
+                                <div class="design-option-label">Dot</div>
+                            </div>
+                            <div class="design-option" data-corner="rounded">
+                                <div class="design-option-icon">◙</div>
+                                <div class="design-option-label">Rounded</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="error-correction">Error Correction Level:</label>
+                            <select id="error-correction" class="form-control">
+                                <option value="L">Low (7%)</option>
+                                <option value="M">Medium (15%)</option>
+                                <option value="Q">Quartile (25%)</option>
+                                <option value="H" selected>High (30%)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer-note">
+                    <p>Upload MP3, PDF or any file you wish to your QR Code.</p>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <div class="qr-container" id="qrcode"></div>
+                
+                <div class="quality-slider">
+                    <span class="quality-label">Low Quality</span>
+                    <input type="range" min="1" max="100" value="50" id="quality-slider">
+                    <span class="quality-label">High Quality</span>
+                </div>
+                
+                <div class="dimensions">1000 x 1000 Px</div>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary" id="create-btn">Create QR Code</button>
+                    <button class="btn btn-secondary">Download PNG</button>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-outline">.SVG</button>
+                    <button class="btn btn-outline">.PDF*</button>
+                    <button class="btn btn-outline">.EPS*</button>
+                </div>
+                
+                <div class="footer-note">
+                    <p>* no support for color gradients</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <div class="container">
+            <h3>QR Code Templates</h3>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // QR Code configuration
+            let qrCodeConfig = {
+                text: "https://www.qrcode-monkey.com",
+                width: 250,
+                height: 250,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            };
+            
+            // Pattern and corner style
+            let qrPattern = "square";
+            let cornerStyle = "square";
+            
+            // Logo configuration
+            let logoImage = null;
+            let logoSize = 15;
+            
+            // Initialize QR Code
+            let qrcode = new QRCode(document.getElementById("qrcode"), qrCodeConfig);
+            
+            // Get DOM elements
+            const urlInput = document.getElementById('url-input');
+            const createBtn = document.getElementById('create-btn');
+            const downloadBtn = document.querySelector('.btn-secondary');
+            const qualitySlider = document.getElementById('quality-slider');
+            const foregroundColorInput = document.getElementById('foreground-color');
+            const backgroundColorInput = document.getElementById('background-color');
+            const cornerColorInput = document.getElementById('corner-color');
+            const foregroundColorPreview = document.getElementById('foreground-color-preview');
+            const backgroundColorPreview = document.getElementById('background-color-preview');
+            const cornerColorPreview = document.getElementById('corner-color-preview');
+            const logoUploadArea = document.getElementById('logo-upload-area');
+            const logoUploadInput = document.getElementById('logo-upload');
+            const logoPreview = document.getElementById('logo-preview');
+            const logoPreviewImg = document.getElementById('logo-preview-img');
+            const removeLogoBtn = document.getElementById('remove-logo');
+            const logoSizeInput = document.getElementById('logo-size');
+            const logoSizeValue = document.getElementById('logo-size-value');
+            const patternOptions = document.querySelectorAll('.design-option[data-pattern]');
+            const cornerOptions = document.querySelectorAll('.design-option[data-corner]');
+            const errorCorrectionSelect = document.getElementById('error-correction');
+            
+            // Update QR Code function
+            function updateQRCode() {
+                // Get current values
+                const url = urlInput.value.trim() || "https://www.qrcode-monkey.com";
+                const fgColor = foregroundColorInput.value;
+                const bgColor = backgroundColorInput.value;
+                const errorLevel = errorCorrectionSelect.value;
+                
+                // Update config
+                qrCodeConfig.text = url;
+                qrCodeConfig.colorDark = fgColor;
+                qrCodeConfig.colorLight = bgColor;
+                
+                // Set correct level
+                switch(errorLevel) {
+                    case 'L': qrCodeConfig.correctLevel = QRCode.CorrectLevel.L; break;
+                    case 'M': qrCodeConfig.correctLevel = QRCode.CorrectLevel.M; break;
+                    case 'Q': qrCodeConfig.correctLevel = QRCode.CorrectLevel.Q; break;
+                    case 'H': qrCodeConfig.correctLevel = QRCode.CorrectLevel.H; break;
+                }
+                
+                // Clear previous QR code
+                document.getElementById("qrcode").innerHTML = '';
+                
+                // Generate new QR code
+                qrcode = new QRCode(document.getElementById("qrcode"), qrCodeConfig);
+                
+                // If there's a logo, add it to the QR code
+                if (logoImage) {
+                    setTimeout(() => {
+                        addLogoToQRCode(logoImage);
+                    }, 100);
+                }
+            }
+            
+            // Function to add logo to the QR code
+            function addLogoToQRCode(logoImg) {
+                const qrCanvas = document.querySelector('#qrcode canvas');
+                if (!qrCanvas) return;
+                
+                const qrContext = qrCanvas.getContext('2d');
+                const size = qrCanvas.width * (logoSize / 100);
+                const centerX = (qrCanvas.width - size) / 2;
+                const centerY = (qrCanvas.height - size) / 2;
+                
+                // Create a temporary canvas to draw the logo with a white background
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = size;
+                tempCanvas.height = size;
+                const tempContext = tempCanvas.getContext('2d');
+                
+                // Draw white background
+                tempContext.fillStyle = '#FFFFFF';
+                tempContext.fillRect(0, 0, size, size);
+                
+                // Draw logo
+                tempContext.drawImage(logoImg, 0, 0, size, size);
+                
+                // Draw the temporary canvas on the QR code
+                qrContext.drawImage(tempCanvas, centerX, centerY);
+            }
+            
+            // Create QR Code button click
+            createBtn.addEventListener('click', updateQRCode);
+            
+            // Download button click
+            downloadBtn.addEventListener('click', function() {
+                const qrCanvas = document.querySelector('#qrcode canvas');
+                if (qrCanvas) {
+                    qrCanvas.toBlob(function(blob) {
+                        saveAs(blob, "qrcode.png");
+                    });
+                }
+            });
+            
+            // Color inputs change
+            foregroundColorInput.addEventListener('input', function() {
+                foregroundColorPreview.style.backgroundColor = this.value;
+            });
+            
+            backgroundColorInput.addEventListener('input', function() {
+                backgroundColorPreview.style.backgroundColor = this.value;
+            });
+            
+            cornerColorInput.addEventListener('input', function() {
+                cornerColorPreview.style.backgroundColor = this.value;
+            });
+            
+            // Logo upload
+            logoUploadArea.addEventListener('click', function() {
+                logoUploadInput.click();
+            });
+            
+            logoUploadInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            logoImage = img;
+                            logoPreviewImg.src = event.target.result;
+                            logoPreview.style.display = 'block';
+                            logoUploadArea.style.display = 'none';
+                            updateQRCode();
+                        };
+                        img.src = event.target.result;
+                    };
+                    
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+            
+            // Remove logo button
+            removeLogoBtn.addEventListener('click', function() {
+                logoImage = null;
+                logoPreview.style.display = 'none';
+                logoUploadArea.style.display = 'block';
+                updateQRCode();
+            });
+            
+            // Logo size slider
+            logoSizeInput.addEventListener('input', function() {
+                logoSize = this.value;
+                logoSizeValue.textContent = logoSize + '%';
+                
+                if (logoImage) {
+                    updateQRCode();
+                }
+            });
+            
+            // Pattern options click
+            patternOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    patternOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    qrPattern = this.dataset.pattern;
+                    // In a full implementation, we would update the QR code pattern here
+                    // This would require custom QR code generation rather than using the library
+                });
+            });
+            
+            // Corner options click
+            cornerOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    cornerOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    cornerStyle = this.dataset.corner;
+                    // In a full implementation, we would update the corner style here
+                });
+            });
+            
+            // Error correction change
+            errorCorrectionSelect.addEventListener('change', updateQRCode);
+            
+            // Update color inputs when color preview clicked
+            foregroundColorPreview.addEventListener('click', function() {
+                foregroundColorInput.click();
+            });
+            
+            backgroundColorPreview.addEventListener('click', function() {
+                backgroundColorInput.click();
+            });
+            
+            cornerColorPreview.addEventListener('click', function() {
+                cornerColorInput.click();
+            });
+            
+            // Toggle card bodies
+            const collapseButtons = document.querySelectorAll('.card-header-collapse');
+            collapseButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const cardBody = this.closest('.card').querySelector('.card-body');
+                    if (cardBody) {
+                        if (cardBody.style.display === 'none') {
+                            cardBody.style.display = 'block';
+                            this.textContent = '−';
+                        } else {
+                            cardBody.style.display = 'none';
+                            this.textContent = '+';
+                        }
+                    }
+                });
+            });
+            
+            // Quality slider
+            qualitySlider.addEventListener('input', function() {
+                // In a full implementation, we would update the QR code size/quality
+                // For now, just displaying the value would be enough
+                const value = this.value;
+                const sizeValue = 500 + Math.round(value * 10);
+                
+                document.querySelector('.dimensions').textContent = 
+                    sizeValue + ' x ' + sizeValue + ' Px';
+            });
+            
+            // SVG, PDF, EPS buttons
+            document.querySelectorAll('.btn-outline').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    alert('Export as ' + this.textContent + ' is not implemented in this demo.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
